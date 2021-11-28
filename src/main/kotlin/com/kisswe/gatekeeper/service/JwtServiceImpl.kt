@@ -24,8 +24,8 @@ class JwtServiceImpl(authSigningKeyConfig: AuthSigningKeyConfig): JwtService {
     override fun verifyAuthToken(token: String): User {
         log.info("Trying to authenticate user with token = {}", token)
         val jwtBody = Jwts.parserBuilder()
-            .requireIssuer("gatekeeper-dev")
-            .requireAudience("bouncer-dev")
+            .requireIssuer("bouncer-dev")
+            .requireAudience("gatekeeper-dev")
             .setSigningKey(signingPk)
             .build()
             .parseClaimsJws(token)
