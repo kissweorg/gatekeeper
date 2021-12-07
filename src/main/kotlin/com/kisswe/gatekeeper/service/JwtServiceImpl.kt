@@ -1,5 +1,6 @@
 package com.kisswe.gatekeeper.service
 
+import com.kisswe.gatekeeper.config.AuthClaimConfig
 import com.kisswe.gatekeeper.config.AuthSigningKeyConfig
 import com.kisswe.gatekeeper.model.User
 import io.jsonwebtoken.Jwts
@@ -9,7 +10,10 @@ import java.security.Key
 import java.security.KeyStore
 
 @Service
-class JwtServiceImpl(authSigningKeyConfig: AuthSigningKeyConfig): JwtService {
+class JwtServiceImpl(
+    private val authClaimConfig: AuthClaimConfig,
+    authSigningKeyConfig: AuthSigningKeyConfig,
+): JwtService {
     private val log = LoggerFactory.getLogger(JwtServiceImpl::class.java)
     private val signingPk: Key
 
@@ -24,12 +28,12 @@ class JwtServiceImpl(authSigningKeyConfig: AuthSigningKeyConfig): JwtService {
     override fun verifyAuthToken(token: String): User {
         log.info("Trying to authenticate user with token = {}", token)
         val jwtBody = Jwts.parserBuilder()
-            .requireIssuer("bouncer-dev")
-            .requireAudience("gatekeeper-dev")
+            .requireIssuer(authClaimConfig.issuer)
+            .requireAudience(authClaimConfig.audience)
             .setSigningKey(signingPk)
             .build()
             .parseClaimsJws(token)
-        val user = User(id = jwtBody.body.subject)
+        val user = User(id = jwtBody.body.subject.toLong())
         log.info("Authenticated user = {}", user)
         return user
     }

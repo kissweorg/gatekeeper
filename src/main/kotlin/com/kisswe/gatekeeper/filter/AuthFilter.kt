@@ -34,7 +34,7 @@ class AuthFilter(
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
 
-        val request = exchange.request.mutate().header(authHeaderConfig.userId, user.id).build()
+        val request = exchange.request.mutate().header(authHeaderConfig.userId, user.id.toString()).build()
         chain.filter(exchange.mutate().request(request).build()).then(Mono.fromRunnable {
             log.info("AuthFilter End: {}", exchange.response)
         })
